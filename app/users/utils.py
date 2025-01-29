@@ -1,40 +1,33 @@
 from sqlalchemy.orm import Session
 from app.auth.models import User
-from app.users.schemas import UserCreate, UserUpdate
+from app.users import schemas
 from app.auth.utils import get_password_hash
 
-def get_users(db: Session):
-    return db.query(User).all()
-
-def get_user_by_id(db: Session, user_id: int):
+def get_user(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()
 
-def create_user(db: Session, user: UserCreate):
-    new_user = User(
-        username=user.username,
-        email=user.email,
-        hashed_password=get_password_hash(user.password),
-        role=user.role
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+def get_users(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(User).offset(skip).limit(limit).all()
 
-def update_user(db: Session, user_id: int, user_update: UserUpdate):
-    user = get_user_by_id(db, user_id)
-    if not user:
+def update_user(db: Session, user_id: int, user: schemas.UserUpdate):
+    db_user = get_user(db, user_id)
+    if not db_user:
         return None
-    if user_update.password:
-        user_update.password = get_password_hash(user_update.password)
-    for field, value in user_update.dict(exclude_unset=True).items():
-        setattr(user, field, value)
+    update_data = user.dict(exclude_unset=True)
+    if 'password' in update_data:
+        update_data['hashed_password'] = get_password_hash(update_data['password'])
+        del update_data['password']
+    for key, value in update_data.items():
+        setattr(db_user, key, value)
     db.commit()
-    db.refresh(user)
-    return user
+    db.refresh(db_user)
+    return db_user
 
 def delete_user(db: Session, user_id: int):
-    user = get_user_by_id(db, user_id)
-    if user:
-        db.delete(user)
-        db.commit()
+    db_user = get_user(db, user_id)
+    if not db_user:
+        return None
+    db.delete(db_user)
+    db.commit()
+    return db_user
+

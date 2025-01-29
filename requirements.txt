@@ -4,3 +4,5 @@ uvicorn
 jose
 passlib
 pydantic
+email-validator
+jinja2

@@ -1,14 +1,23 @@
 from pydantic import BaseModel, EmailStr
 
-class UserCreate(BaseModel):
+class UserBase(BaseModel):
     username: str
-    password: str
     email: EmailStr
+    role: str = "user"
 
-class UserLogin(BaseModel):
-    username: str
+class UserCreate(UserBase):
     password: str
+
+class UserRead(UserBase):
+    id: int
+
+    class Config:
+        orm_mode = True
 
 class Token(BaseModel):
     access_token: str
-    refresh_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: str | None = None
+

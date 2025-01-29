@@ -1,41 +1,31 @@
-import { Delete, SquareArrowOutUpLeft, UserRoundPen } from 'lucide-react';
-interface UserActionsProps {
-    userId: number;
-    isDarkMode: boolean;
+import { useRouter } from "next/navigation"
+
+interface Props {
+  userId: number
+  isDarkMode: boolean
 }
 
-export function UserActions({ userId, isDarkMode }: UserActionsProps) {
-    const buttonStyles = `p-2 w-10 h-10 rounded transition duration-200 text-sm font-semibold`;
+export const UserActions = ({ userId, isDarkMode }: Props) => {
+  const router = useRouter()
 
-    return (
-        <div className="flex justify-around">
-            <button
-                className={`${buttonStyles} ${isDarkMode
-                        ? "bg-green-700 text-white hover:bg-green-600"
-                        : "bg-green-500 text-white hover:bg-green-400"
-                    }`}
-                onClick={() => window.location.href = `/users/${userId}`}
-            >
-                <SquareArrowOutUpLeft />
-            </button>
-            <button
-                className={`${buttonStyles} ${isDarkMode
-                        ? "bg-blue-700 text-white hover:bg-blue-600"
-                        : "bg-blue-500 text-white hover:bg-blue-400"
-                    }`}
-                onClick={() => window.location.href = `/users/${userId}/edit`}
-            >
-                <UserRoundPen />
-            </button>
-            <button
-                className={`${buttonStyles} ${isDarkMode
-                        ? "bg-red-700 text-white hover:bg-red-600"
-                        : "bg-red-500 text-white hover:bg-red-400"
-                    }`}
-                onClick={() => window.location.href = `/users/${userId}/delete`}
-            >
-                <Delete />
-            </button>
-        </div>
-    );
+  const handleEdit = () => {
+    router.push(`/edit?id=${userId}`)
+  }
+
+  // Add more actions as needed (e.g., delete)
+
+  return (
+    <div className="flex space-x-2">
+      <button
+        onClick={handleEdit}
+        className={`px-3 py-1 rounded-md text-white font-semibold transition duration-300 ${
+          isDarkMode ? "bg-green-600 hover:bg-green-700" : "bg-green-500 hover:bg-green-600"
+        }`}
+      >
+        Edit
+      </button>
+      {/* Add more buttons here for other actions */}
+    </div>
+  )
 }
+
